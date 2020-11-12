@@ -35,6 +35,8 @@ Gomes](https://twitter.com/anapaulagomess) em
 [https://github.com/augusto-herrmann/eleicoes-2020-planos-de-governo](https://github.com/augusto-herrmann/eleicoes-2020-planos-de-governo).
 """
 
+st.title('Eleições 2020 - Planos de governo')
+
 @st.cache
 def load_data():
     df = pd.read_csv(PLANOS_PATH, parse_dates=['data_nascimento'])
@@ -102,7 +104,7 @@ def load_propostas(arquivo):
 def load_uf_df(df, codigo_cidade):
     uf_df = df[df['codigo_cidade_tse'] == codigo_cidade].copy()
     uf_df['propostas_txt'] = df['arquivo'].apply(load_propostas)
-    return uf_df
+    return uf_df.sort_values(by='nome_urna')
 
 
 planos_municipio_df = load_uf_df(planos_df, codigo_cidade)
@@ -120,7 +122,7 @@ columns_renames = {
 st.table(
     planos_municipio_df[columns_renames.keys()] \
         .rename(columns=columns_renames) \
-        .sort_values(by='Nome').reset_index().drop(columns=['index'])
+        .reset_index().drop(columns=['index'])
 )
 
 """
@@ -138,12 +140,15 @@ css = """
 </style>
 """
 st.markdown(css, unsafe_allow_html=True)
-for _, row in planos_municipio_df.sort_values(by='nome_urna').iterrows():
+for _, row in planos_municipio_df.iterrows():
+    pdf_link = ''
+    if isinstance(row['url'], str):
+        pdf_link = f'<a href="{row["url"]}" target="_blank">Ver PDF</a>'
+
     html = f"""
       <arcticle>
         <h2 class="propostas-titulo">
-          {row['nome_partido']}
-          <a href="{row['url']}" target="_blank">Ver PDF</a>
+          {row['nome_partido']} {pdf_link}
         </h2>
         {row['propostas_txt'] or 'Vazio'}
       </arcticle>
