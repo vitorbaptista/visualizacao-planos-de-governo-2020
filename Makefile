@@ -14,7 +14,7 @@ PYTHON_INTERPRETER = python3
 
 ## Make Dataset
 data: data/raw/propostas.7z data/raw/planos-de-governo.csv
-	cd data/raw && p7zip -kd propostas.7z
+	cd data/raw && p7zip -kd propostas.7z && find . -type f -exec gzip {} \;
 
 data/raw/propostas.7z:
 	wget https://github.com/augusto-herrmann/eleicoes-2020-planos-de-governo/raw/main/dados/propostas.7z -O $@
